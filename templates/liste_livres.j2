@@ -1,16 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Livres</title>
-    {% include 'bootstrap.j2' %}
-</head>
+{% import "bootstrap.j2" as header %}
+
+{{ header.header("Livres") }}
+
+
 <body>
     {% include 'utils.j2' %}
     <div class="container mt-5">
         <h1 class="mb-4">Liste des Livres</h1>
-        <a href="/" class="btn btn-primary mb-3">Retour</a>
+        <a href="/affichage" class="btn btn-primary mb-3">Retour</a>
         <table class="table table-striped">
             <thead>
                 <tr>

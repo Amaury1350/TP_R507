@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import requests, logging
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+import requests, logging, jwt, datetime
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -17,8 +19,30 @@ def affichage():
 def edition():
     return render_template('edition.j2')
 
-@app.route('/login')
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key'
+logging.basicConfig(level=logging.DEBUG)
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Here you should add your logic to verify the username and password
+        # For example, you can send a request to your backend to verify the credentials
+        response = requests.post('http://localhost:5000/authenticate', json={'username': username, 'password': password})
+        
+        if response.status_code == 200:
+            token = jwt.encode({
+                'user': username,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+            }, app.config['SECRET_KEY'])
+            
+            return jsonify({'token': token})
+        else:
+            return jsonify({'error': 'Invalid credentials'}), 401
+    
     return render_template('login.j2')
 
 @app.route('/livres')

@@ -45,6 +45,16 @@
             <button type="submit" class="btn btn-primary">Ajouter</button>
         </form>
     </div>
+    <div id="deleteUser" class="card p-4 mt-4">
+        <h4>Supprimer un utilisateur</h4>
+        <form id="deleteUserForm" action="/supprimer_utilisateur" method="POST">
+            <div class="form-group">
+                <label for="deleteUsername">Nom d'utilisateur :</label>
+                <input type="text" id="deleteUsername" name="username" class="form-control" placeholder="Nom d'utilisateur" required>
+            </div>
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+        </form>
+    </div>
     </div>
 </body>
 </html>

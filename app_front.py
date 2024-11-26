@@ -7,7 +7,15 @@ logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/')
 def accueil():
-    return render_template('index.j2')
+    return render_template('accueil.j2')
+
+@app.route('/affichage')
+def affichage():
+    return render_template('affichage.j2')
+
+@app.route('/edition')
+def edition():
+    return render_template('edition.j2')
 
 @app.route('/livres')
 def livres():

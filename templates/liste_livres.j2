@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livres</title>
+    {% include 'bootstrap.j2' %}
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Liste des Livres</h1>
+        <a href="/" class="btn btn-primary mb-3">Retour</a>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titre</th>
+                    <th>Pitch</th>
+                    <th>Auteur ID</th>
+                    <th>Date de Publication</th>
+                    <th>Emprunteur ID</th>
+                </tr>
+            </thead>
+                <tbody>
+                {% for livre in livres %}
+                    <tr>
+                    <td>{{ livre.0 }}</td>
+                    <td>{{ livre.1 }}</td>
+                    <td>{{ livre.2 }}</td>
+                    <td>{{ livre.3 }}</td>
+                    <td>{{ livre.4 }}</td>
+                    <td>{{ livre.5 }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+        </table>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

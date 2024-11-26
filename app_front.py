@@ -17,6 +17,10 @@ def affichage():
 def edition():
     return render_template('edition.j2')
 
+@app.route('/login')
+def login():
+    return render_template('login.j2')
+
 @app.route('/livres')
 def livres():
     response = requests.get('http://localhost:5000/livres')

@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion</title>
-    {% include 'bootstrap.j2' %}
-</head>
+{% import "bootstrap.j2" as header %}
+
+{{ header.header("Connexion") }}
+
 <body>
     {% include 'utils.j2' %}
     <div class="container">

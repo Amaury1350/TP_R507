@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests, logging, jwt, datetime
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'mon_secret'
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -19,9 +20,7 @@ def affichage():
 def edition():
     return render_template('edition.j2')
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
-logging.basicConfig(level=logging.DEBUG)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -49,7 +48,6 @@ def login():
 def livres():
     response = requests.get('http://localhost:5000/livres')
     livres = response.json()
-    #return jsonify(livres)
     return render_template('liste_livres.j2', livres=livres)
 
 @app.route('/auteurs')

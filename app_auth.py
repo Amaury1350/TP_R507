@@ -14,7 +14,7 @@ SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-with open('/c:/Users/amaur/Documents/TP_R507/user.json') as f:
+with open('user.json') as f:
     fake_users_db = json.load(f)
     
 
@@ -137,3 +137,7 @@ async def verify_token_middleware(request: Request, call_next):
         return Response(content="Invalid token", status_code=400)
     response = await call_next(request)
     return response
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=5002)

@@ -1,8 +1,46 @@
 import sqlite3
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
+from passlib.context import CryptContext
+from fastapi.encoders import jsonable_encoder
+from starlette.middleware.sessions import SessionMiddleware
+
+
+class Livre(BaseModel):
+    title: str
+    pitch: str
+    author_id: int  
+    date_public: str
+    emprunteur_id: int
+
+class Utilisateur(BaseModel):
+    id: int
+    nom: str
+    email: str
+    
+class Auteur(BaseModel):
+    id: int
+    nom_auteur: str
+    
+class LivreAjout(BaseModel):
+    title: str
+    content: str
+    author: str
+    date: str
+
+class UtilisateurAjout(BaseModel):
+    nom: str
+    email: str
+
+class Emprunt(BaseModel):
+    utilisateur_id: int
+    livre_id: int
+
 
 app = FastAPI()
+
+app.add_middleware(SessionMiddleware, secret_key="phrase secrète de session !")
 
 @app.get("/utilisateurs")
 async def get_utilisateurs():
@@ -125,6 +163,20 @@ async def rendre_livre(utilisateur_id: int, livre_id: int):
         cur.execute("UPDATE livres SET emprunteur_id = 0 WHERE id = ? AND emprunteur_id = ?", (livre_id, utilisateur_id))
         conn.commit()
         return {"message": "Livre rendu avec succès"}
+
+@app.middleware("http")
+async def verify_token_middleware(request: Request, call_next):
+    token = request.headers.get('Authorization')
+    if token is None or not token.startswith("Bearer "):
+        return Response(content="Invalid token", status_code=400)
+    token = token[len("Bearer "):]
+    try:
+        verify_token(token)
+    except HTTPException:
+        return Response(content="Invalid token", status_code=400)
+    response = await call_next(request)
+    return response
+
 
 if __name__ == "__main__":
     import uvicorn

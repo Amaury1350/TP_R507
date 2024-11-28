@@ -14,9 +14,39 @@ SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-with open('user.json') as f:
-    fake_users_db = json.load(f)
-    
+#with open('user.json') as f:
+#    fake_users_db = json.load(f)
+ 
+fake_users_db = """{
+    "asmith": {
+        "username": "asmith",
+        "full_name": "Alice Smith",
+        "email": "alice.smith@example.com",
+        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
+        "disabled": false
+    },
+    "bjohnson": {
+        "username": "bjohnson",
+        "full_name": "Bob Johnson",
+        "email": "bob.johnson@example.com",
+        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
+        "disabled": false
+    },
+    "cbrown": {
+        "username": "cbrown",
+        "full_name": "Charlie Brown",
+        "email": "charlie.brown@example.com",
+        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
+        "disabled": false
+    },
+    "testuser": {
+        "username": "testuser",
+        "full_name": "Test User",
+        "email": "test.user@example.com",
+        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
+        "disabled": false
+    }
+}"""
 
 class Token(BaseModel):
     access_token: str
@@ -39,7 +69,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
 
-app.add_middleware(SessionMiddleware, secret_key="phrase secrète de session !")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -125,18 +154,6 @@ async def get_jwks():
         ]
     })
 
-@app.middleware("http")
-async def verify_token_middleware(request: Request, call_next):
-    token = request.headers.get('Authorization')
-    if token is None or not token.startswith("Bearer "):
-        return Response(content="Invalid token", status_code=400)
-    token = token[len("Bearer "):]
-    try:
-        verify_token(token)
-    except HTTPException:
-        return Response(content="Invalid token", status_code=400)
-    response = await call_next(request)
-    return response
 
 if __name__ == "__main__":
     import uvicorn

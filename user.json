@@ -3,21 +3,28 @@
         "username": "asmith",
         "full_name": "Alice Smith",
         "email": "alice.smith@example.com",
-        "hashed_password": "$2b$12$KIXQ4fFj6lW8QJ8K8QJ8Qe8QJ8QJ8QJ8QJ8QJ8QJ8QJ8QJ8QJ8QJ8Q",
+        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
         "disabled": false
     },
     "bjohnson": {
         "username": "bjohnson",
         "full_name": "Bob Johnson",
         "email": "bob.johnson@example.com",
-        "hashed_password": "$2b$12$KIXQ4fFj6lW8QJ8K8QJ8Qe8QJ8QJ8QJ8QJ8QJ8QJ8QJ8QJ8QJ8QJ8Q",
+        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
         "disabled": false
     },
     "cbrown": {
         "username": "cbrown",
         "full_name": "Charlie Brown",
         "email": "charlie.brown@example.com",
-        "hashed_password": "$2b$12$KIXQ4fFj6lW8QJ8K8QJ8Qe8QJ8QJ8QJ8QJ8QJ8QJ8QJ8QJ8QJ8QJ8Q",
+        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
+        "disabled": false
+    },
+    "testuser": {
+        "username": "testuser",
+        "full_name": "Test User",
+        "email": "test.user@example.com",
+        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
         "disabled": false
     }
 }

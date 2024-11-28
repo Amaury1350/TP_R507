@@ -1,11 +1,33 @@
 import sqlite3
-from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import FastAPI, HTTPException, status, Request, Response
+# from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
-from passlib.context import CryptContext
-from fastapi.encoders import jsonable_encoder
+# from passlib.context import CryptContext
+# from fastapi.encoders import jsonable_encoder
 from starlette.middleware.sessions import SessionMiddleware
+import jwt
+from typing import Optional
 
+
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+def verify_token(token: str):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except :
+        raise credentials_exception
+    return token_data
 
 class Livre(BaseModel):
     title: str
@@ -36,34 +58,61 @@ class UtilisateurAjout(BaseModel):
 class Emprunt(BaseModel):
     utilisateur_id: int
     livre_id: int
+    
+class TokenData(BaseModel):
+    username: Optional[str] = None
+    
 
 
 app = FastAPI()
 
-app.add_middleware(SessionMiddleware, secret_key="phrase secrète de session !")
+app.add_middleware(SessionMiddleware)
 
-@app.get("/utilisateurs")
+
+@app.middleware("http")
+async def verify_token_middleware(request: Request, call_next):
+    protected_routes = [
+        "/utilisateur/emprunts/",
+        "/livres/siecle/",
+        "/livres/ajouter",
+        "/utilisateur/ajouter"
+    ]
+    for route in protected_routes:
+        if request.url.path.startswith(route):
+            token = request.headers.get('Authorization')
+            if token is None or not token.startswith("Bearer "):
+                return Response(content="Invalid token", status_code=400)
+            token = token[len("Bearer "):]
+            try:
+                verify_token(token)
+            except HTTPException:
+                return Response(content="Invalid token", status_code=400)
+            break
+    response = await call_next(request)
+    return response
+
+@app.get("/utilisateurs", response_model=Utilisateur)
 async def get_utilisateurs():
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM utilisateurs")
         return cur.fetchall()
 
-@app.get("/livres")
+@app.get("/livres", response_model=Livre)
 async def get_livres():
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM livres")
         return cur.fetchall()
 
-@app.get("/auteurs")
+@app.get("/auteurs", response_model=Auteur)
 async def get_auteurs():
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM auteurs")
         return cur.fetchall()
 
-@app.get("/utilisateur/{utilisateur}")
+@app.get("/utilisateur/{utilisateur}", response_model=Utilisateur)
 async def get_utilisateur(utilisateur: str):
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
@@ -101,7 +150,7 @@ async def get_emprunts(utilisateur: str):
         else:
             raise HTTPException(status_code=404, detail="User not found")
 
-@app.get("/livres/siecle/{siecle}")
+@app.get("/livres/siecle/{siecle}", response_model=Livre)
 async def get_livres_par_siecle(siecle: int):
     debut_annee = (siecle - 1) * 100 + 1
     fin_annee = siecle * 100
@@ -113,7 +162,7 @@ async def get_livres_par_siecle(siecle: int):
         """, (f"01-01-{debut_annee}", f"31-12-{fin_annee}"))
         return cur.fetchall()
 
-@app.post("/livres/ajouter")
+@app.post("/livres/ajouter", response_model=LivreAjout)
 async def ajouter_livre(request: Request):
     livre = await request.json()
     with sqlite3.connect('database.db') as conn:
@@ -128,7 +177,7 @@ async def ajouter_livre(request: Request):
         conn.commit()
         return {"message": "Livre ajouté avec succès"}
 
-@app.post("/utilisateur/ajouter")
+@app.post("/utilisateur/ajouter", response_model=UtilisateurAjout)
 async def ajouter_utilisateur(request: Request):
     utilisateur = await request.json()
     with sqlite3.connect('database.db') as conn:
@@ -163,19 +212,6 @@ async def rendre_livre(utilisateur_id: int, livre_id: int):
         cur.execute("UPDATE livres SET emprunteur_id = 0 WHERE id = ? AND emprunteur_id = ?", (livre_id, utilisateur_id))
         conn.commit()
         return {"message": "Livre rendu avec succès"}
-
-@app.middleware("http")
-async def verify_token_middleware(request: Request, call_next):
-    token = request.headers.get('Authorization')
-    if token is None or not token.startswith("Bearer "):
-        return Response(content="Invalid token", status_code=400)
-    token = token[len("Bearer "):]
-    try:
-        verify_token(token)
-    except HTTPException:
-        return Response(content="Invalid token", status_code=400)
-    response = await call_next(request)
-    return response
 
 
 if __name__ == "__main__":

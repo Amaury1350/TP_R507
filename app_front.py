@@ -27,9 +27,10 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        response = requests.post('http://localhost:5002/token', data={'username': username, 'password': password})
-        
-        if response.status_code == 200:
+        try:
+            response = requests.post('http://localhost:5002/token', data={'username': username, 'password': password})
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            
             token = response.json().get('access_token')
             if token:
                 resp = redirect(url_for('accueil'))
@@ -37,7 +38,8 @@ def login():
                 return resp
             else:
                 return jsonify({"error": "Token not found in response"}), 500
-        else:
+        except requests.exceptions.RequestException as e:
+            app.logger.error(f"Request failed: {e}")
             return jsonify({"error": "Authentication failed"}), 401
     
     return render_template('login.j2')

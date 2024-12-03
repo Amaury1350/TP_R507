@@ -143,19 +143,18 @@ async def get_auteurs():
             auteurs.append(auteur)
         return auteurs
 
-@app.get("/utilisateur/{utilisateur}", response_model=Utilisateur)
+@app.get("/utilisateur/{utilisateur}", response_model=List[Utilisateur])
 async def get_utilisateur(utilisateur: str):
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
         if utilisateur.isdigit():
             cur.execute("SELECT * FROM utilisateurs WHERE id = ?", (int(utilisateur),))
         else:
-            cur.execute("SELECT * FROM utilisateurs WHERE nom = ?", (utilisateur,))
+            cur.execute("SELECT * FROM utilisateurs WHERE nom LIKE ?", (f"%{utilisateur}%",))
         result = [dict((cur.description[i][0], value) for i, value in enumerate(row)) for row in cur.fetchall()]
-        if len(result) == 1:
-            return result[0]
-        elif len(result) > 1:
-            raise HTTPException(status_code=400, detail="Multiple users found with the same name")
+        if result:
+            logging.info(f"User(s) found: {result}")
+            return result
         else:
             raise HTTPException(status_code=404, detail="User not found")
 

@@ -69,7 +69,6 @@ def resultat():
     if response.content:
         try:
             return render_template('utilisateur.j2', user=response.json())
-            #return jsonify(response.json())
         except ValueError as e:
             app.logger.error(f"JSON decode error: {e}")
             return jsonify({"error": "Invalid JSON response"}), 500

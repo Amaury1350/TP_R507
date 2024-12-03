@@ -107,7 +107,7 @@ async def get_utilisateurs():
                 email = row[2]
             )
             utilisateurs.append(utilisateur)
-        return utilisateur
+        return utilisateurs
 
 @app.get("/livres", response_model=List[Livre])
 async def get_livres():

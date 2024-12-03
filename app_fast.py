@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 import jwt
 from typing import List, Optional
+import logging
 
 
 SECRET_KEY = "your_secret_key"
@@ -31,9 +32,9 @@ def verify_token(token: str):
 
 class Livre(BaseModel):
     id: int
-    title: str
+    titre: str
     pitch: str
-    author_id: int
+    auteur_id: int
     date_public: str
     emprunteur_id: int
 
@@ -47,7 +48,7 @@ class Auteur(BaseModel):
     nom_auteur: str
     
 class LivreAjout(BaseModel):
-    title: str
+    titre: str
     content: str
     author: str
     date: str
@@ -100,11 +101,11 @@ async def get_utilisateurs():
         rows = cur.fetchall()
         utilisateurs = []
         for row in rows:
-            utilisateur = {
-                "id": row[0],
-                "nom": row[1],
-                "email": row[2]
-            }
+            utilisateur = Utilisateur(
+                id = row[0],
+                nom = row[1],
+                email = row[2]
+            )
             utilisateurs.append(utilisateur)
         return utilisateur
 
@@ -116,14 +117,14 @@ async def get_livres():
         rows = cur.fetchall()
         livres = []
         for row in rows:
-            livre = {
-                "id": row[0],
-                "title": row[1],
-                "pitch": row[2],
-                "author_id": row[3],
-                "date_public": row[4],
-                "emprunteur_id": row[5]
-            }
+            livre = Livre(
+                id=row[0],
+                titre=row[1],
+                pitch=row[2],
+                auteur_id=row[3],
+                date_public=row[4],
+                emprunteur_id=row[5]
+            )
             livres.append(livre)
         return livres
 
@@ -135,10 +136,10 @@ async def get_auteurs():
         rows = cur.fetchall()
         auteurs = []
         for row in rows:
-            auteur = {
-                "id": row[0],
-                "nom_auteur": row[1]
-            }
+            auteur = Auteur(
+                id = row[0],
+                nom_auteur = row[1]
+            )
             auteurs.append(auteur)
         return auteurs
 

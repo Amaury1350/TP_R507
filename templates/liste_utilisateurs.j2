@@ -18,9 +18,9 @@
             <tbody>
                 {% for utilisateur in utilisateurs %}
                     <tr>
-                        <td>{{ utilisateur.0 }}</td>
-                        <td>{{ utilisateur.1 }}</td>
-                        <td>{{ utilisateur.2 }}</td>
+                        <td>{{ utilisateur.id }}</td>
+                        <td>{{ utilisateur.nom }}</td>
+                        <td>{{ utilisateur.email }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

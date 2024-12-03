@@ -6,12 +6,12 @@ from pydantic import BaseModel
 # from fastapi.encoders import jsonable_encoder
 from starlette.middleware.sessions import SessionMiddleware
 import jwt
-from typing import Optional
+from typing import List, Optional
 
 
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
 
 def verify_token(token: str):
     credentials_exception = HTTPException(
@@ -30,9 +30,10 @@ def verify_token(token: str):
     return token_data
 
 class Livre(BaseModel):
+    id: int
     title: str
     pitch: str
-    author_id: int  
+    author_id: int
     date_public: str
     emprunteur_id: int
 
@@ -66,7 +67,7 @@ class TokenData(BaseModel):
 
 app = FastAPI()
 
-app.add_middleware(SessionMiddleware)
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 
 @app.middleware("http")
@@ -91,26 +92,55 @@ async def verify_token_middleware(request: Request, call_next):
     response = await call_next(request)
     return response
 
-@app.get("/utilisateurs", response_model=Utilisateur)
+@app.get("/utilisateurs", response_model=List[Utilisateur])
 async def get_utilisateurs():
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM utilisateurs")
-        return cur.fetchall()
+        rows = cur.fetchall()
+        utilisateurs = []
+        for row in rows:
+            utilisateur = {
+                "id": row[0],
+                "nom": row[1],
+                "email": row[2]
+            }
+            utilisateurs.append(utilisateur)
+        return utilisateur
 
-@app.get("/livres", response_model=Livre)
+@app.get("/livres", response_model=List[Livre])
 async def get_livres():
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM livres")
-        return cur.fetchall()
+        rows = cur.fetchall()
+        livres = []
+        for row in rows:
+            livre = {
+                "id": row[0],
+                "title": row[1],
+                "pitch": row[2],
+                "author_id": row[3],
+                "date_public": row[4],
+                "emprunteur_id": row[5]
+            }
+            livres.append(livre)
+        return livres
 
-@app.get("/auteurs", response_model=Auteur)
+@app.get("/auteurs", response_model=List[Auteur])
 async def get_auteurs():
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM auteurs")
-        return cur.fetchall()
+        rows = cur.fetchall()
+        auteurs = []
+        for row in rows:
+            auteur = {
+                "id": row[0],
+                "nom_auteur": row[1]
+            }
+            auteurs.append(auteur)
+        return auteurs
 
 @app.get("/utilisateur/{utilisateur}", response_model=Utilisateur)
 async def get_utilisateur(utilisateur: str):

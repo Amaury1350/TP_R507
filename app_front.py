@@ -30,7 +30,6 @@ def login():
         try:
             response = requests.post('http://localhost:5002/token', data={'username': username, 'password': password})
             response.raise_for_status()  # Raise an exception for HTTP errors
-            
             token = response.json().get('access_token')
             if token:
                 resp = redirect(url_for('accueil'))
@@ -40,7 +39,8 @@ def login():
                 return jsonify({"error": "Token not found in response"}), 500
         except requests.exceptions.RequestException as e:
             app.logger.error(f"Request failed: {e}")
-            return jsonify({"error": "Authentication failed"}), 401
+            return render_template('login.j2', error="Authentication failed")
+            #return jsonify({"error": "Authentication failed"}), 401
     
     return render_template('login.j2')
 

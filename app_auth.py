@@ -7,6 +7,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.encoders import jsonable_encoder
 from starlette.middleware.sessions import SessionMiddleware
+import sqlite3
 import json
 
 # to get a string like this run: openssl rand -hex 32
@@ -14,39 +15,26 @@ SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-#with open('user.json') as f:
-#    fake_users_db = json.load(f)
+def load_users_from_db(db_path: str):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT username, email, full_name, disabled, hashed_password FROM users")
+    users = cursor.fetchall()
+    conn.close()
+    user_dict = {}
+    for user in users:
+        user_dict[user[0]] = {
+            "username": user[0],
+            "email": user[1],
+            "full_name": user[2],
+            "disabled": user[3],
+            "hashed_password": user[4],
+        }
+    return user_dict
+
+users_db = load_users_from_db("users.db")
  
-fake_users_db = """{
-    "asmith": {
-        "username": "asmith",
-        "full_name": "Alice Smith",
-        "email": "alice.smith@example.com",
-        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
-        "disabled": false
-    },
-    "bjohnson": {
-        "username": "bjohnson",
-        "full_name": "Bob Johnson",
-        "email": "bob.johnson@example.com",
-        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
-        "disabled": false
-    },
-    "cbrown": {
-        "username": "cbrown",
-        "full_name": "Charlie Brown",
-        "email": "charlie.brown@example.com",
-        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
-        "disabled": false
-    },
-    "testuser": {
-        "username": "testuser",
-        "full_name": "Test User",
-        "email": "test.user@example.com",
-        "hashed_password": "$2b$12$lQ4UIZdDshcksPHFmlaRfOhcrgpYciIyuKN/woVEdHfhB5zHQ75K2",
-        "disabled": false
-    }
-}"""
+
 
 class Token(BaseModel):
     access_token: str
@@ -117,7 +105,7 @@ def verify_token(token: str):
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    user = authenticate_user(users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -133,7 +121,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @app.get("/users/me/", response_model=User)
 async def read_users_me(token: str = Depends(oauth2_scheme)):
     token_data = verify_token(token)
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(users_db, username=token_data.username)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user

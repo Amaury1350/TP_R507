@@ -2,23 +2,40 @@ from flask import Flask, render_template, request, jsonify
 import requests, logging
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests, logging, jwt, datetime
+import jwt
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mon_secret'
 logging.basicConfig(level=logging.DEBUG)
 
+SECRET_KEY = "your_secret_key"  # Assurez-vous que cette clé est la même que celle utilisée pour signer le token
+
+def get_username_from_token(token):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        return payload.get("sub")
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
 
 @app.route('/')
 def accueil():
-    return render_template('accueil.j2')
+    token = request.cookies.get('token')
+    username = get_username_from_token(token) if token else None
+    return render_template('accueil.j2', username=username)
 
 @app.route('/affichage')
 def affichage():
-    return render_template('affichage.j2')
+    token = request.cookies.get('token')
+    username = get_username_from_token(token) if token else None
+    return render_template('affichage.j2', username=username)
 
 @app.route('/edition')
 def edition():
-    return render_template('edition.j2')
+    token = request.cookies.get('token')
+    username = get_username_from_token(token) if token else None
+    return render_template('edition.j2', username=username)
 
 
 
@@ -40,7 +57,6 @@ def login():
         except requests.exceptions.RequestException as e:
             app.logger.error(f"Request failed: {e}")
             return render_template('login.j2', error="Authentication failed")
-            #return jsonify({"error": "Authentication failed"}), 401
     
     return render_template('login.j2')
 

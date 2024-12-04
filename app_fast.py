@@ -49,9 +49,9 @@ class Auteur(BaseModel):
     
 class LivreAjout(BaseModel):
     titre: str
-    content: str
-    author: str
-    date: str
+    pitch: str
+    auteur: str
+    date_public: str
 
 class UtilisateurAjout(BaseModel):
     nom: str
@@ -197,13 +197,13 @@ async def ajouter_livre(request: Request):
     livre = await request.json()
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
-        cur.execute("INSERT OR IGNORE INTO auteurs (nom_auteur) VALUES (?)", (livre['author'],))
-        cur.execute("SELECT id FROM auteurs WHERE nom_auteur = ?", (livre['author'],))
+        cur.execute("INSERT OR IGNORE INTO auteurs (nom_auteur) VALUES (?)", (livre['auteur'],))
+        cur.execute("SELECT id FROM auteurs WHERE nom_auteur = ?", (livre['auteur'],))
         auteur_id = cur.fetchone()[0]
         cur.execute("""
             INSERT OR IGNORE INTO livres (titre, pitch, auteur_id, date_public) 
             VALUES (?, ?, ?, ?)
-        """, (livre['title'], livre['content'], auteur_id, livre['date']))
+        """, (livre['titre'], livre['pitch'], auteur_id, livre['date_public']))
         conn.commit()
         return {"message": "Livre ajouté avec succès"}
 

@@ -91,5 +91,27 @@ def resultat():
     else:
         return jsonify({"error": "No content in response"}), 500
 
+@app.route('/ajout', methods=['POST'])
+def ajout():
+    titre = request.form.get('titre')
+    pitch = request.form.get('pitch')
+    auteur = request.form.get('auteur')
+    date_public = request.form.get('date_public')
+    data = {'titre': titre, 'pitch': pitch, 'auteur': auteur, 'date_public': date_public}
+    try:
+        response = requests.post('http://localhost:5000/livres/ajouter', json=data)
+        response.raise_for_status() 
+        return redirect(url_for('livres'))
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"Request failed: {e}")
+        return jsonify({"error": "Failed to add book"}), 500
+
+
+@app.route('/logout')
+def logout():
+    resp = redirect(url_for('accueil'))
+    resp.delete_cookie('token')
+    return resp
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001, debug=True)

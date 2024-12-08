@@ -93,15 +93,13 @@ def resultat():
 
 @app.route('/ajout', methods=['POST'])
 def ajout():
+    if request.cookies.get('token') is None or not request.cookies.get('token').startswith("Bearer "):
+        return render_template('login.j2', error="Permission non accordée")
     url = "http://localhost:5000/livres/ajouter"
     titre = request.form.get('titre')
     pitch = request.form.get('pitch')
     auteur = request.form.get('auteur')
     date_public = request.form.get('date_public')
-    app.logger.debug(f"Titre: {titre}")
-    app.logger.debug(f"Pitch: {pitch}")
-    app.logger.debug(f"Auteur: {auteur}")
-    app.logger.debug(f"Date de publication: {date_public}")
     data = {
         'titre': titre, 
         'pitch': pitch, 
@@ -118,7 +116,8 @@ def ajout():
         return redirect(url_for('livres'))
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Request failed: {e}")
-        return jsonify({"error": "Failed to add book"}), 500
+        return render_template('login.j2', error="Problème lors de l'ajout du livre")
+        #return jsonify({"error": "Failed to add book"}), 500
 
 
 @app.route('/logout')

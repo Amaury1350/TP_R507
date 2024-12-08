@@ -30,6 +30,11 @@
             </div>
             <button type="submit" class="btn btn-primary">Ajouter</button>
         </form>
+        {% if error %}
+            <div class="alert alert-danger mt-3" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
     </div>
     <div id="addUser" class="card p-4 mt-4">
         <h4>Ajouter un nouvel utilisateur</h4>

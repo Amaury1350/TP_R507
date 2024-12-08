@@ -70,7 +70,6 @@ app = FastAPI()
 
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
-logging.basicConfig(level=logging.DEBUG)
 
 @app.middleware("http")
 async def verify_token_middleware(request: Request, call_next):
@@ -84,14 +83,11 @@ async def verify_token_middleware(request: Request, call_next):
         if request.url.path.startswith(route):
             token = request.headers.get('Authorization')
             if token is None or not token.startswith("Bearer "):
-                logging.debug("Invalid token format or missing token")
                 return Response(content="Invalid token", status_code=400)
             token = token[len("Bearer "):]
             try:
                 verify_token(token)
-                logging.debug(f"Token verified for route: {route}")
             except HTTPException as e:
-                logging.debug(f"Token verification failed: {e.detail}")
                 return Response(content=str(e.detail), status_code=e.status_code)
             break
     response = await call_next(request)
@@ -198,23 +194,19 @@ async def get_livres_par_siecle(siecle: int):
 
 @app.post("/livres/ajouter")
 async def ajouter_livre(livre: LivreAjout):
-    logging.debug(f"Received data: {livre}")
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
         try:
             cur.execute("INSERT OR IGNORE INTO auteurs (nom_auteur) VALUES (?)", (livre.auteur,))
             cur.execute("SELECT id FROM auteurs WHERE nom_auteur = ?", (livre.auteur,))
             auteur_id = cur.fetchone()[0]
-            logging.debug(f"Auteur ID: {auteur_id}")
             cur.execute("""
                 INSERT OR IGNORE INTO livres (titre, pitch, auteur_id, date_public) 
                 VALUES (?, ?, ?, ?)
             """, (livre.titre, livre.pitch, auteur_id, livre.date_public))
             conn.commit()
-            logging.debug("Livre ajouté avec succès")
             return {"message": "Livre ajouté avec succès"}
         except Exception as e:
-            logging.error(f"Database error: {e}")
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.post("/utilisateur/ajouter", response_model=UtilisateurAjout)

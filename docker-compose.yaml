@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   api_fast:
@@ -34,7 +34,7 @@ services:
       - api_auth
     environment:
       - API_FAST_URL=http://api_fast:5000
-      - API_AUTH_URL=http://api_auth:5001
+      - API_AUTH_URL=http://api_auth:5002
 
   db:
     image: nouchka/sqlite3:latest

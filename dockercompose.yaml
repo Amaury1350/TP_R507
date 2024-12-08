@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  api_fast:
+    image: python:3.10-slim
+    build:
+      context: ./api_fast
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=sqlite:///./api_fast_db.sqlite
+
+  api_auth:
+    image: python:3.10-slim
+    build:
+      context: ./api_auth
+    ports:
+      - "5002:5002"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=sqlite:///./api_auth_db.sqlite
+
+  api_front:
+    image: python:3.10-slim
+    build:
+      context: ./api_front
+    ports:
+      - "5001:5001"
+    depends_on:
+      - api_fast
+      - api_auth
+    environment:
+      - API_FAST_URL=http://api_fast:5000
+      - API_AUTH_URL=http://api_auth:5001
+
+  db:
+    image: nouchka/sqlite3:latest
+    volumes:
+      - db_data:/data
+
+volumes:
+  db_data:

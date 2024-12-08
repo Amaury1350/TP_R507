@@ -1,6 +1,6 @@
 FROM python:3.11-alpine
 
-WORKDIR /Download/
+WORKDIR /app
 
 VOLUME [ "/app/data" ]
 

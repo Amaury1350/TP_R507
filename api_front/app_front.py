@@ -3,12 +3,15 @@ import requests, logging
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests, logging, jwt, datetime
 import jwt
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mon_secret'
 logging.basicConfig(level=logging.DEBUG)
 
 SECRET_KEY = "your_secret_key"  # Assurez-vous que cette clé est la même que celle utilisée pour signer le token
+API_FAST_URL = os.getenv('API_FAST_URL', 'http://api_fast:5000')
+API_AUTH_URL = os.getenv('API_AUTH_URL', 'http://api_auth:5002')
 
 def get_username_from_token(token):
     try:
@@ -47,7 +50,7 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         try:
-            response = requests.post('http://localhost:5002/token', data={'username': username, 'password': password})
+            response = requests.post(f'{API_AUTH_URL}/token', data={'username': username, 'password': password})
             response.raise_for_status()  # Raise an exception for HTTP errors
             token = response.json().get('access_token')
             if token:
@@ -66,7 +69,7 @@ def login():
 def livres():
     token = request.cookies.get('token')
     username = get_username_from_token(token) if token else None
-    response = requests.get('http://localhost:5000/livres')
+    response = requests.get(f'{API_FAST_URL}/livres')
     livres = response.json()
     return render_template('liste_livres.j2', livres=livres, username=username)
 
@@ -74,7 +77,7 @@ def livres():
 def auteurs():
     token = request.cookies.get('token')
     username = get_username_from_token(token) if token else None
-    response = requests.get('http://localhost:5000/auteurs')
+    response = requests.get(f'{API_FAST_URL}/auteurs')
     auteurs = response.json()
     return render_template('liste_auteurs.j2', auteurs=auteurs, username=username)
 
@@ -82,14 +85,14 @@ def auteurs():
 def utilisateurs():
     token = request.cookies.get('token')
     username = get_username_from_token(token) if token else None
-    response = requests.get('http://localhost:5000/utilisateurs')
+    response = requests.get(f'{API_FAST_URL}/utilisateurs')
     utilisateurs = response.json()
     return render_template('liste_utilisateurs.j2', utilisateurs=utilisateurs, username=username)
 
 @app.route('/resultat', methods=['POST'])
 def resultat():
     user = request.form.get("user")
-    response = requests.get(f'http://localhost:5000/utilisateur/{user}')
+    response = requests.get(f'{API_FAST_URL}/utilisateur/{user}')
     if response.content:
         try:
             return render_template('utilisateur.j2', user=response.json())
@@ -104,7 +107,7 @@ def ajout():
     token = request.cookies.get('token')
     if token is None or get_username_from_token(token) is None:
         return render_template('login.j2', error="Permission non accordée")
-    url = "http://localhost:5000/livres/ajouter"
+    url = f'{API_FAST_URL}/livres/ajouter'
     titre = request.form.get('titre')
     pitch = request.form.get('pitch')
     auteur = request.form.get('auteur')
@@ -133,7 +136,7 @@ def ajout_utilisateur():
     token = request.cookies.get('token')
     if token is None or get_username_from_token(token) is None:
         return render_template('login.j2', error="Permission non accordée")
-    url = "http://localhost:5000/utilisateur/ajouter"
+    url = f'{API_FAST_URL}/utilisateur/ajouter'
     nom = request.form.get('nom')
     email = request.form.get('email')
     data = {
@@ -157,7 +160,7 @@ def delete_user():
     token = request.cookies.get('token')
     if token is None or get_username_from_token(token) is None:
         return render_template('login.j2', error="Permission non accordée")
-    url = "http://localhost:5000/utilisateur/supprimer"
+    url = f'{API_FAST_URL}/utilisateur/supprimer'
     user = request.form.get('user')
     data = {
         'user': user

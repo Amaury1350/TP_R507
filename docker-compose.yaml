@@ -2,7 +2,6 @@ version: '4'
 
 services:
   api_fast:
-    image: python:3.10-slim
     build:
       context: ./api_fast
     ports:
@@ -15,7 +14,6 @@ services:
       - db_data:/data
 
   api_auth:
-    image: python:3.10-slim
     build:
       context: ./api_auth
     ports:
@@ -28,7 +26,6 @@ services:
       - db_data:/data
 
   api_front:
-    image: python:3.10-slim
     build:
       context: ./api_front
     ports:

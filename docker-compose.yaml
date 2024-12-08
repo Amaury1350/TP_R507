@@ -10,7 +10,9 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=sqlite:///./api_fast_db.sqlite
+      - DATABASE_URL=sqlite:///data/api_fast_db.sqlite
+    volumes:
+      - db_data:/data
 
   api_auth:
     image: python:3.10-slim
@@ -21,7 +23,9 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=sqlite:///./api_auth_db.sqlite
+      - DATABASE_URL=sqlite:///data/api_auth_db.sqlite
+    volumes:
+      - db_data:/data
 
   api_front:
     image: python:3.10-slim
@@ -35,12 +39,17 @@ services:
     environment:
       - API_FAST_URL=http://api_fast:5000
       - API_AUTH_URL=http://api_auth:5002
+    volumes:
+      - db_data:/data
 
   db:
     image: nouchka/sqlite3:latest
     volumes:
       - db_data:/data
-    command: sh -c "sqlite3 /data/database.db < /data/init_database.sql && sqlite3 /data/users.db < /data/init_users.sql"
+      - ./init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
+      - ./database.db:/data/database.db
+      - ./users.db:/data/users.db
+    entrypoint: /docker-entrypoint-initdb.d/init_db.sh
 
 volumes:
   db_data:

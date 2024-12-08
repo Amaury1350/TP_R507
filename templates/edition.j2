@@ -57,13 +57,18 @@
     </div>
     <div id="deleteUser" class="card p-4 mt-4">
         <h4>Supprimer un utilisateur</h4>
-        <form id="deleteUserForm" action="/supprimer_utilisateur" method="POST">
+        <form id="deleteUserForm" action="/delete_user" method="POST">
             <div class="form-group">
-                <label for="deleteUsername">Nom d'utilisateur ou ID:</label>
-                <input type="text" id="deleteUsername" name="username" class="form-control" placeholder="Nom d'utilisateur" required>
+                <label for="user">Nom d'utilisateur ou ID:</label>
+                <input type="text" id="user" name="user" class="form-control" placeholder="Nom d'utilisateur ou ID" required>
             </div>
             <button type="submit" class="btn btn-danger">Supprimer</button>
         </form>
+        {% if error == 2 %}
+            <div class="alert alert-danger mt-3" role="alert">
+                Problème lors de la suppression de l'utilisateur
+            </div>
+        {% endif %}
     </div>
     </div>
 </body>

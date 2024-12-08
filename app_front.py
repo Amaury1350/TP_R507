@@ -41,6 +41,8 @@ def edition():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    token = request.cookies.get('token')
+    username = get_username_from_token(token) if token else None
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -56,27 +58,33 @@ def login():
                 return jsonify({"error": "Token not found in response"}), 500
         except requests.exceptions.RequestException as e:
             app.logger.error(f"Request failed: {e}")
-            return render_template('login.j2', error="Authentication failed")
+            return render_template('login.j2', error="Authentication failed", username=username)
     
     return render_template('login.j2')
 
 @app.route('/livres')
 def livres():
+    token = request.cookies.get('token')
+    username = get_username_from_token(token) if token else None
     response = requests.get('http://localhost:5000/livres')
     livres = response.json()
-    return render_template('liste_livres.j2', livres=livres)
+    return render_template('liste_livres.j2', livres=livres, username=username)
 
 @app.route('/auteurs')
 def auteurs():
+    token = request.cookies.get('token')
+    username = get_username_from_token(token) if token else None
     response = requests.get('http://localhost:5000/auteurs')
     auteurs = response.json()
-    return render_template('liste_auteurs.j2', auteurs=auteurs)
+    return render_template('liste_auteurs.j2', auteurs=auteurs, username=username)
 
 @app.route('/utilisateurs')
 def utilisateurs():
+    token = request.cookies.get('token')
+    username = get_username_from_token(token) if token else None
     response = requests.get('http://localhost:5000/utilisateurs')
     utilisateurs = response.json()
-    return render_template('liste_utilisateurs.j2', utilisateurs=utilisateurs)
+    return render_template('liste_utilisateurs.j2', utilisateurs=utilisateurs, username=username)
 
 @app.route('/resultat', methods=['POST'])
 def resultat():
@@ -149,7 +157,7 @@ def delete_user():
     token = request.cookies.get('token')
     if token is None or get_username_from_token(token) is None:
         return render_template('login.j2', error="Permission non accordée")
-    url = "http://localhost:5000/utilisateur/"
+    url = "http://localhost:5000/utilisateur/supprimer"
     user = request.form.get('user')
     data = {
         'user': user
@@ -159,12 +167,12 @@ def delete_user():
         "Authorization": f"Bearer {request.cookies.get('token')}"
     }
     try:
-        response = requests.post(url, json=data, headers=headers)
+        response = requests.delete(url, json=data, headers=headers)
         response.raise_for_status() 
         return redirect(url_for('utilisateurs'))
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Request failed: {e}")
-        return render_template('edition.j2', error=1)
+        return render_template('edition.j2', error=2)
 
 @app.route('/logout')
 def logout():

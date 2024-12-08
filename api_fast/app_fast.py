@@ -95,7 +95,7 @@ async def verify_token_middleware(request: Request, call_next):
 
 @app.get("/utilisateurs", response_model=List[Utilisateur])
 async def get_utilisateurs():
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM utilisateurs")
         rows = cur.fetchall()
@@ -111,7 +111,7 @@ async def get_utilisateurs():
 
 @app.get("/livres", response_model=List[Livre])
 async def get_livres():
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM livres")
         rows = cur.fetchall()
@@ -130,7 +130,7 @@ async def get_livres():
 
 @app.get("/auteurs", response_model=List[Auteur])
 async def get_auteurs():
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM auteurs")
         rows = cur.fetchall()
@@ -145,7 +145,7 @@ async def get_auteurs():
 
 @app.get("/utilisateur/{utilisateur}", response_model=List[Utilisateur])
 async def get_utilisateur(utilisateur: str):
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         if utilisateur.isdigit():
             cur.execute("SELECT * FROM utilisateurs WHERE id = ?", (int(utilisateur),))
@@ -160,12 +160,12 @@ async def get_utilisateur(utilisateur: str):
 
 @app.get("/utilisateur/emprunts/{utilisateur}")
 async def get_emprunts(utilisateur: str):
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         if utilisateur.isdigit():
             cur.execute("SELECT * FROM utilisateurs WHERE id = ?", (int(utilisateur),))
         else:
-            cur.execute("SELECT * FROM utilisateurs WHERE nom = ?", (utilisateur,))
+            cur.execute("SELECT * FROM utilisateurs WHERE nom = ?", (utilisateur,)) 
         result = cur.fetchall()
         if len(result) == 1:
             utilisateur_id = result[0][0]
@@ -184,7 +184,7 @@ async def get_emprunts(utilisateur: str):
 async def get_livres_par_siecle(siecle: int):
     debut_annee = (siecle - 1) * 100 + 1
     fin_annee = siecle * 100
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         cur.execute("""
             SELECT * FROM livres 
@@ -194,7 +194,7 @@ async def get_livres_par_siecle(siecle: int):
 
 @app.post("/livres/ajouter")
 async def ajouter_livre(livre: LivreAjout):
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         try:
             cur.execute("INSERT OR IGNORE INTO auteurs (nom_auteur) VALUES (?)", (livre.auteur,))
@@ -211,7 +211,7 @@ async def ajouter_livre(livre: LivreAjout):
 
 @app.post("/utilisateur/ajouter")
 async def ajouter_utilisateur(utilisateur: UtilisateurAjout):
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         try:
             cur.execute("INSERT INTO utilisateurs (nom, email) VALUES (?, ?)", (utilisateur.nom, utilisateur.email))
@@ -222,7 +222,7 @@ async def ajouter_utilisateur(utilisateur: UtilisateurAjout):
 
 @app.delete("/utilisateur/{utilisateur}")
 async def supprimer_utilisateur(utilisateur: str):
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         if utilisateur.isdigit():
             cur.execute("DELETE FROM utilisateurs WHERE id = ?", (int(utilisateur),))
@@ -233,7 +233,7 @@ async def supprimer_utilisateur(utilisateur: str):
 
 @app.put("/utilisateur/{utilisateur_id}/emprunter/{livre_id}")
 async def emprunter_livre(utilisateur_id: int, livre_id: int):
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         cur.execute("UPDATE livres SET emprunteur_id = ? WHERE id = ?", (utilisateur_id, livre_id))
         conn.commit()
@@ -241,9 +241,8 @@ async def emprunter_livre(utilisateur_id: int, livre_id: int):
 
 @app.put("/utilisateur/{utilisateur_id}/rendre/{livre_id}")
 async def rendre_livre(utilisateur_id: int, livre_id: int):
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect('/data/api_fast_db.sqlite') as conn:
         cur = conn.cursor()
         cur.execute("UPDATE livres SET emprunteur_id = 0 WHERE id = ? AND emprunteur_id = ?", (livre_id, utilisateur_id))
         conn.commit()
         return {"message": "Livre rendu avec succès"}
-

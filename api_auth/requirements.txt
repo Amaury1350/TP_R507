@@ -4,4 +4,6 @@ waitress
 pipreqs
 pathlib
 jwt
-jose
+python-jose
+passlib
+python-multipart

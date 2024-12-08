@@ -32,7 +32,7 @@ def load_users_from_db(db_path: str):
         }
     return user_dict
 
-users_db = load_users_from_db("users.db")
+users_db = load_users_from_db("/data/api_auth_db.sqlite")
  
 
 

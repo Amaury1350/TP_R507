@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests, logging, jwt, datetime
 import jwt
 import os
+from jose import JWTError, jwt
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mon_secret'
@@ -17,9 +18,7 @@ def get_username_from_token(token):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         return payload.get("sub")
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.InvalidTokenError:
+    except JWTError:
         return None
 
 @app.route('/')
@@ -143,12 +142,13 @@ def ajout_utilisateur():
         'nom': nom, 
         'email': email
     }
+    app.logger.info(f"Data: {data}")
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {request.cookies.get('token')}"
     }
     try:
-        response = requests.post(url, json=data, headers=headers)
+        response = requests.post(f'{API_FAST_URL}/utilisateur/ajouter', json=data, headers=headers)
         response.raise_for_status() 
         return redirect(url_for('utilisateurs'))
     except requests.exceptions.RequestException as e:

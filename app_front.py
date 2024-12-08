@@ -93,13 +93,27 @@ def resultat():
 
 @app.route('/ajout', methods=['POST'])
 def ajout():
+    url = "http://localhost:5000/livres/ajouter"
     titre = request.form.get('titre')
     pitch = request.form.get('pitch')
     auteur = request.form.get('auteur')
     date_public = request.form.get('date_public')
-    data = {'titre': titre, 'pitch': pitch, 'auteur': auteur, 'date_public': date_public}
+    app.logger.debug(f"Titre: {titre}")
+    app.logger.debug(f"Pitch: {pitch}")
+    app.logger.debug(f"Auteur: {auteur}")
+    app.logger.debug(f"Date de publication: {date_public}")
+    data = {
+        'titre': titre, 
+        'pitch': pitch, 
+        'auteur': auteur, 
+        'date_public': date_public
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {request.cookies.get('token')}"
+    }
     try:
-        response = requests.post('http://localhost:5000/livres/ajouter', json=data)
+        response = requests.post(url, json=data, headers=headers)
         response.raise_for_status() 
         return redirect(url_for('livres'))
     except requests.exceptions.RequestException as e:

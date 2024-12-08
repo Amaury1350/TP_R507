@@ -40,6 +40,7 @@ services:
     image: nouchka/sqlite3:latest
     volumes:
       - db_data:/data
+    command: sh -c "sqlite3 /data/database.db < /data/init_database.sql && sqlite3 /data/users.db < /data/init_users.sql"
 
 volumes:
   db_data:

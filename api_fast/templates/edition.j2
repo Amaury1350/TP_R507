@@ -1,0 +1,75 @@
+{% import "bootstrap.j2" as header %}
+
+{{ header.header("Edition") }}
+
+<body>
+    {% include 'utils.j2' %}
+    <div class="container">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <h1 class="my-4">Bienvenue sur la Librairie en Ligne</h1>
+    <div id="addBook" class="card p-4 mt-4">
+        <h4>Ajouter un nouveau livre</h4>
+        <form id="addBookForm" action="/ajout" method="POST">
+            <div class="form-group">
+                <label for="titre">Titre du livre :</label>
+                <input type="text" id="titre" name="titre" class="form-control" placeholder="Titre" required>
+            </div>
+            <div class="form-group">
+                <label for="pitch">Pitch :</label>
+                <input type="text" id="pitch" name="pitch" class="form-control" placeholder="Pitch" required>
+            </div>
+            <div class="form-group">
+                <label for="auteur">Auteur :</label>
+                <input type="text" id="auteur" name="auteur" class="form-control" placeholder="Auteur" required>
+            </div>
+            <div class="form-group">
+                <label for="date_public">Date de publication :</label>
+                <input type="date" id="date_public" name="date_public" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+        </form>
+        {% if error == 0 %}
+            <div class="alert alert-danger mt-3" role="alert">
+                Problème lors de l'ajout du livre
+            </div>
+        {% endif %}
+    </div>
+    <div id="addUser" class="card p-4 mt-4">
+        <h4>Ajouter un nouvel utilisateur</h4>
+        <form id="addUserForm" action="/ajout_utilisateur" method="POST">
+            <div class="form-group">
+                <label for="nom">Nom d'utilisateur :</label>
+                <input type="text" id="nom" name="nom" class="form-control" placeholder="Nom d'utilisateur" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="Email" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+        </form>
+        {% if error == 1 %}
+            <div class="alert alert-danger mt-3" role="alert">
+                Problème lors de l'ajout de l'utilisateur
+            </div>
+        {% endif %}
+    </div>
+    <div id="deleteUser" class="card p-4 mt-4">
+        <h4>Supprimer un utilisateur</h4>
+        <form id="deleteUserForm" action="/delete_user" method="POST">
+            <div class="form-group">
+                <label for="user">Nom d'utilisateur ou ID:</label>
+                <input type="text" id="user" name="user" class="form-control" placeholder="Nom d'utilisateur ou ID" required>
+            </div>
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+        </form>
+        {% if error == 2 %}
+            <div class="alert alert-danger mt-3" role="alert">
+                Problème lors de la suppression de l'utilisateur
+            </div>
+        {% endif %}
+    </div>
+    </div>
+</body>
+</html>

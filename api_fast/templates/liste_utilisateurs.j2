@@ -1,0 +1,33 @@
+{% import "bootstrap.j2" as header %}
+
+{{ header.header("Utilisateurs") }}
+
+<body>
+    {% include 'utils.j2' %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Liste des Utilisateurs</h1>
+        <a href="/affichage" class="btn btn-primary mb-3">Retour</a>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for utilisateur in utilisateurs %}
+                    <tr>
+                        <td>{{ utilisateur.id }}</td>
+                        <td>{{ utilisateur.nom }}</td>
+                        <td>{{ utilisateur.email }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

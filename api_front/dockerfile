@@ -4,8 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-COPY ../templates /app/templates
-
 EXPOSE 5001
 
 RUN pip install --no-cache-dir -r requirements.txt

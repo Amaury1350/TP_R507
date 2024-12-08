@@ -93,7 +93,8 @@ def resultat():
 
 @app.route('/ajout', methods=['POST'])
 def ajout():
-    if request.cookies.get('token') is None or not request.cookies.get('token').startswith("Bearer "):
+    token = request.cookies.get('token')
+    if token is None or get_username_from_token(token) is None:
         return render_template('login.j2', error="Permission non accordée")
     url = "http://localhost:5000/livres/ajouter"
     titre = request.form.get('titre')
@@ -116,9 +117,54 @@ def ajout():
         return redirect(url_for('livres'))
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Request failed: {e}")
-        return render_template('login.j2', error="Problème lors de l'ajout du livre")
-        #return jsonify({"error": "Failed to add book"}), 500
+        return render_template('login.j2', error=0)
 
+
+@app.route('/ajout_utilisateur', methods=['POST'])
+def ajout_utilisateur():
+    token = request.cookies.get('token')
+    if token is None or get_username_from_token(token) is None:
+        return render_template('login.j2', error="Permission non accordée")
+    url = "http://localhost:5000/utilisateur/ajouter"
+    nom = request.form.get('nom')
+    email = request.form.get('email')
+    data = {
+        'nom': nom, 
+        'email': email
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {request.cookies.get('token')}"
+    }
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status() 
+        return redirect(url_for('utilisateurs'))
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"Request failed: {e}")
+        return render_template('edition.j2', error=1)
+
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+    token = request.cookies.get('token')
+    if token is None or get_username_from_token(token) is None:
+        return render_template('login.j2', error="Permission non accordée")
+    url = "http://localhost:5000/utilisateur/"
+    user = request.form.get('user')
+    data = {
+        'user': user
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {request.cookies.get('token')}"
+    }
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status() 
+        return redirect(url_for('utilisateurs'))
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"Request failed: {e}")
+        return render_template('edition.j2', error=1)
 
 @app.route('/logout')
 def logout():

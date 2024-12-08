@@ -30,18 +30,18 @@
             </div>
             <button type="submit" class="btn btn-primary">Ajouter</button>
         </form>
-        {% if error %}
+        {% if error == 0 %}
             <div class="alert alert-danger mt-3" role="alert">
-                {{ error }}
+                Problème lors de l'ajout du livre
             </div>
         {% endif %}
     </div>
     <div id="addUser" class="card p-4 mt-4">
         <h4>Ajouter un nouvel utilisateur</h4>
-        <form id="addUserForm" action="/ajouter_utilisateur" method="POST">
+        <form id="addUserForm" action="/ajout_utilisateur" method="POST">
             <div class="form-group">
-                <label for="username">Nom d'utilisateur :</label>
-                <input type="text" id="username" name="username" class="form-control" placeholder="Nom d'utilisateur" required>
+                <label for="nom">Nom d'utilisateur :</label>
+                <input type="text" id="nom" name="nom" class="form-control" placeholder="Nom d'utilisateur" required>
             </div>
             <div class="form-group">
                 <label for="email">Email :</label>
@@ -49,12 +49,17 @@
             </div>
             <button type="submit" class="btn btn-primary">Ajouter</button>
         </form>
+        {% if error == 1 %}
+            <div class="alert alert-danger mt-3" role="alert">
+                Problème lors de l'ajout de l'utilisateur
+            </div>
+        {% endif %}
     </div>
     <div id="deleteUser" class="card p-4 mt-4">
         <h4>Supprimer un utilisateur</h4>
         <form id="deleteUserForm" action="/supprimer_utilisateur" method="POST">
             <div class="form-group">
-                <label for="deleteUsername">Nom d'utilisateur :</label>
+                <label for="deleteUsername">Nom d'utilisateur ou ID:</label>
                 <input type="text" id="deleteUsername" name="username" class="form-control" placeholder="Nom d'utilisateur" required>
             </div>
             <button type="submit" class="btn btn-danger">Supprimer</button>

@@ -209,14 +209,16 @@ async def ajouter_livre(livre: LivreAjout):
         except Exception as e:
             raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@app.post("/utilisateur/ajouter", response_model=UtilisateurAjout)
-async def ajouter_utilisateur(request: Request):
-    utilisateur = await request.json()
+@app.post("/utilisateur/ajouter")
+async def ajouter_utilisateur(utilisateur: UtilisateurAjout):
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
-        cur.execute("INSERT INTO utilisateurs (nom, email) VALUES (?, ?)", (utilisateur['nom'], utilisateur['email']))
-        conn.commit()
-        return {"message": "Utilisateur ajouté avec succès"}
+        try:
+            cur.execute("INSERT INTO utilisateurs (nom, email) VALUES (?, ?)", (utilisateur.nom, utilisateur.email))
+            conn.commit()
+            return {"message": "Utilisateur ajouté avec succès"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.delete("/utilisateur/{utilisateur}")
 async def supprimer_utilisateur(utilisateur: str):
